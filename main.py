@@ -95,26 +95,26 @@ class MainApplication(tk.Frame):
 		self.load_state()
 
 	def control_thread(self):
-		self.s = threading.Thread(target=self.start_thread)
-		self.s.start()
-		self.save = threading.Thread(target=self.save_state)
-		self.save.start()
+		s = threading.Thread(target=self.start_thread)
+		s.daemon = True
+		s.start()
+		save = threading.Thread(target=self.save_state)
+		save.start()
 
 	def start_thread(self):
 		client.send_info(self.startStorage.get(), self.endStorage.get(), self.messageStorage.get())
 		client.run(self.tokenStorage.get(), bot=False)
 
 	def stop_thread(self):
-		client.stop()
-		self.s.join()
 		sys.exit()
 
 	def save_state(self):
 		data = {}
-		data["token"] = self.tokenStorage.get()
-		data["start"] = self.startStorage.get()
-		data["end"] = self.endStorage.get()
-		data["message"] = self.messageStorage.get()
+		data["info"] = {}
+		data["info"]["token"] = self.tokenStorage.get()
+		data["info"]["start"] = self.startStorage.get()
+		data["info"]["end"] = self.endStorage.get()
+		data["info"]["message"] = self.messageStorage.get()
 		with open("save.json", "w") as json_file:
 			json.dump(data, json_file)
 
@@ -122,10 +122,11 @@ class MainApplication(tk.Frame):
 		if os.path.exists("save.json"):
 			with open("save.json") as json_file:
 				data = json.load(json_file)
-				self.tokenStorage.set(data["token"])
-				self.startStorage.set(data["start"])
-				self.endStorage.set(data["end"])
-				self.messageStorage.set(data["message"])
+				info = data["info"]
+				self.tokenStorage.set(info["token"])
+				self.startStorage.set(info["start"])
+				self.endStorage.set(info["end"])
+				self.messageStorage.set(info["message"])
 		else:
 			open("save.json", "x")
 
