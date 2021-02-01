@@ -7,11 +7,13 @@ import sys
 import os
 import json
 
+
 def in_between(now, start_, end):
 	if start_ <= end:
 		return start_ <= now < end
 	else:
 		return start_ <= now or now < end
+
 
 class MyClient(discord.Client):
 	async def on_ready(self):
@@ -116,7 +118,6 @@ class MainApplication(tk.Frame):
 		with open("save.json", "w") as json_file:
 			json.dump(data, json_file)
 
-
 	def load_state(self):
 		if os.path.exists("save.json"):
 			with open("save.json") as json_file:
@@ -127,9 +128,6 @@ class MainApplication(tk.Frame):
 				self.messageStorage.set(data["message"])
 		else:
 			open("save.json", "x")
-
-
-
 
 
 if __name__ == "__main__":
