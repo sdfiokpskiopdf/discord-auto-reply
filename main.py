@@ -3,7 +3,9 @@ import time
 import datetime
 import tkinter as tk
 import threading
-
+import sys
+import os
+import json
 
 def in_between(now, start_, end):
 	if start_ <= end:
@@ -11,20 +13,25 @@ def in_between(now, start_, end):
 	else:
 		return start_ <= now or now < end
 
-
 class MyClient(discord.Client):
 	async def on_ready(self):
 		print('Logged on as', self.user)
+		self.ended = False
 
 	def send_info(self, start, end, message):
 		self.startt = int(start.replace(":", ""))
 		self.end = int(end.replace(":", ""))
 		self.message = message
 
+	def stop(self):
+		self.ended = True
+
 	async def on_message(self, message):
 		current_time = int(time.strftime('%H%M'))
 
-		# don't respond to ourselves
+		if self.ended:
+			await client.logout()
+
 		if message.author == self.user:
 			return
 
@@ -37,10 +44,14 @@ class MyClient(discord.Client):
 						await message.reply(self.message)
 						break
 
+	def __del__(self):
+		print("logged out")
+
 
 class MainApplication(tk.Frame):
 	def __init__(self, master=None, **kwargs):
 		super().__init__(master, **kwargs)
+		self.firstRun = True
 		tk.Grid.rowconfigure(self, 0, weight=1)
 		tk.Grid.rowconfigure(self, 1, weight=1)
 		tk.Grid.rowconfigure(self, 2, weight=1)
@@ -76,14 +87,49 @@ class MainApplication(tk.Frame):
 		tk.OptionMenu(self, self.endStorage, *self.times).grid(row=2, column=1, sticky="we")
 		tk.Label(self, text="Message:", anchor="w").grid(row=3, column=0, sticky="we")
 		tk.Entry(self, textvariable=self.messageStorage).grid(row=3, column=1, sticky="we")
-		tk.Button(self, text="Start", command=self.bruh).grid(row=4, column=0, columnspan=2, sticky="we")
+		tk.Button(self, text="Start", command=lambda: self.control_thread()).grid(row=4, column=0, sticky="we")
+		tk.Button(self, text="End", command=lambda: self.stop_thread()).grid(row=4, column=1, sticky="we")
 
-	def bruh(self):
-		threading.Thread(target=self.start_thread).start()
+		self.load_state()
+
+	def control_thread(self):
+		self.s = threading.Thread(target=self.start_thread)
+		self.s.start()
+		self.save = threading.Thread(target=self.save_state)
+		self.save.start()
 
 	def start_thread(self):
 		client.send_info(self.startStorage.get(), self.endStorage.get(), self.messageStorage.get())
 		client.run(self.tokenStorage.get(), bot=False)
+
+	def stop_thread(self):
+		client.stop()
+		self.s.join()
+		sys.exit()
+
+	def save_state(self):
+		data = {}
+		data["token"] = self.tokenStorage.get()
+		data["start"] = self.startStorage.get()
+		data["end"] = self.endStorage.get()
+		data["message"] = self.messageStorage.get()
+		with open("save.json", "w") as json_file:
+			json.dump(data, json_file)
+
+
+	def load_state(self):
+		if os.path.exists("save.json"):
+			with open("save.json") as json_file:
+				data = json.load(json_file)
+				self.tokenStorage.set(data["token"])
+				self.startStorage.set(data["start"])
+				self.endStorage.set(data["end"])
+				self.messageStorage.set(data["message"])
+		else:
+			open("save.json", "x")
+
+
+
 
 
 if __name__ == "__main__":
