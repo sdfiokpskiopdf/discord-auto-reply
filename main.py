@@ -6,7 +6,8 @@ import threading
 import sys
 import os
 import json
-
+from tkinter.messagebox import showinfo
+from tkinter.messagebox import askquestion
 
 def in_between(now, start_, end):
 	if start_ <= end:
@@ -45,9 +46,6 @@ class MyClient(discord.Client):
 					if mention.name == self.user.display_name:
 						await message.reply(self.message)
 						break
-
-	def __del__(self):
-		print("logged out")
 
 
 class MainApplication(tk.Frame):
@@ -95,9 +93,13 @@ class MainApplication(tk.Frame):
 		self.load_state()
 
 	def control_thread(self):
-		s = threading.Thread(target=self.start_thread)
-		s.daemon = True
-		s.start()
+		print("Active Threads:", threading.active_count())
+		if threading.active_count() > 1:
+			self.popup("Error", "You have already started the program")
+		else:
+			s = threading.Thread(target=self.start_thread)
+			s.daemon = True
+			s.start()
 		save = threading.Thread(target=self.save_state)
 		save.start()
 
@@ -105,8 +107,12 @@ class MainApplication(tk.Frame):
 		client.send_info(self.startStorage.get(), self.endStorage.get(), self.messageStorage.get())
 		client.run(self.tokenStorage.get(), bot=False)
 
+
 	def stop_thread(self):
-		sys.exit()
+		result = self.question_popup("Exit", "Are you sure you want to end the program?")
+		if result == 'yes':
+			print("Logged out as", client.user)
+			sys.exit()
 
 	def save_state(self):
 		data = {}
@@ -130,8 +136,15 @@ class MainApplication(tk.Frame):
 		else:
 			open("save.json", "x")
 
+	def popup(self, title, message):
+		showinfo(title, message)
+
+	def question_popup(self, title, message):
+		return askquestion(title, message, icon="warning")
 
 if __name__ == "__main__":
+	print("Not running in venv:", sys.base_prefix == sys.prefix)
+	print("Active threads:", threading.active_count())
 	client = MyClient()
 	root = tk.Tk()
 	root.title("discord auto reply")
