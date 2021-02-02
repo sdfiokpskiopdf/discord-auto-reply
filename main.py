@@ -105,6 +105,7 @@ class MainApplication(tk.Frame):
 
 	def start_thread(self):
 		client.send_info(self.startStorage.get(), self.endStorage.get(), self.messageStorage.get())
+		time.sleep(2)
 		client.run(self.tokenStorage.get(), bot=False)
 
 
