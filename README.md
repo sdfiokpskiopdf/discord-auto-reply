@@ -5,10 +5,13 @@ This app will allow you to automatically reply to DMs on discord with a custom A
 - Pick a start and end time when you want the app to operate.
 - Choose a custom message to use.
 - View a history of recent messages the app has replied to.
+- Pause/Resume the app when you want
 
-An executable will be released soon so for now follow the instructions below to install this app.
+An executable has been created and now can be downloaded from the releases section
 
 # Installation
+
+Download the executable file from the releases section or follow instructions to run directly from the python file:
 
 First clone this repository to any folder:
 
