@@ -1,4 +1,8 @@
 /venv
 /.idea
+/dist
+/__pycache__
+/build
 info.csv
 history.csv
+main.spec
