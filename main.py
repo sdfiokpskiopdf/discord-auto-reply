@@ -6,7 +6,6 @@ import threading
 import sys
 import os
 import csv
-import json
 import webbrowser
 from tkinter.messagebox import showinfo
 from tkinter.messagebox import askquestion
@@ -22,6 +21,7 @@ class MyClient(discord.Client):
 	async def on_ready(self):
 		print('Logged on as', self.user)
 		self.ended = False
+		self.paused = False
 
 	def send_info(self, start, end, message):
 		self.startt = start
@@ -36,6 +36,9 @@ class MyClient(discord.Client):
 
 		if self.ended:
 			await client.logout()
+
+		if self.paused:
+			return
 
 		if message.author == self.user:
 			return
@@ -65,6 +68,7 @@ class MainApplication(tk.Frame):
 		tk.Grid.rowconfigure(self, 3, weight=1)
 		tk.Grid.rowconfigure(self, 4, weight=1)
 		tk.Grid.rowconfigure(self, 5, weight=1)
+		tk.Grid.rowconfigure(self, 6, weight=1)
 		tk.Grid.columnconfigure(self, 0, weight=1)
 		tk.Grid.columnconfigure(self, 1, weight=1)
 
@@ -74,9 +78,13 @@ class MainApplication(tk.Frame):
 		self.startStorage = tk.StringVar()
 		self.endStorage = tk.StringVar()
 		self.messageStorage = tk.StringVar()
+		self.buttonStorage = tk.StringVar()
+		self.pauseStorage = tk.StringVar()
 
 		self.startStorage.set(self.times[0])
 		self.endStorage.set(self.times[-1])
+		self.buttonStorage.set("Open History")
+		self.pauseStorage.set("Pause")
 
 		tk.Label(self, relief="sunken", text="Token:", anchor="w").grid(row=0, column=0, sticky="we")
 		tk.Entry(self, relief="sunken", textvariable=self.tokenStorage).grid(row=0, column=1, sticky="we")
@@ -88,7 +96,8 @@ class MainApplication(tk.Frame):
 		tk.Entry(self, relief="sunken", textvariable=self.messageStorage).grid(row=3, column=1, sticky="we")
 		tk.Button(self, text="Start", command=lambda: self.control_thread()).grid(row=4, column=0, sticky="we")
 		tk.Button(self, text="End", command=lambda: self.stop_thread()).grid(row=4, column=1, sticky="we")
-		tk.Button(self, text="History", command=lambda: self.create_window()).grid(row=5, column=0, columnspan=2, sticky="we")
+		tk.Button(self, textvariable=self.buttonStorage, command=lambda: self.create_window()).grid(row=5, column=0, columnspan=2, sticky="we")
+		tk.Button(self, textvariable=self.pauseStorage, command=lambda: self.interrupt()).grid(row=6, column=0, columnspan=2, sticky="we")
 
 		self.load_state()
 		self.history_data = self.load_messages()
@@ -97,12 +106,16 @@ class MainApplication(tk.Frame):
 		#shitty programming starts here
 
 		if self.window_open:
+			self.buttonStorage.set("Open History")
 			self.window_open = False
 			self.window.destroy()
 		else:
+			self.buttonStorage.set("Close History")
 			self.window_open = True
 			self.window = tk.Toplevel()
 			self.window.title("History")
+			self.window.protocol("WM_DELETE_WINDOW", self.create_window)
+			self.window.resizable(width=False, height=False)
 
 			self.history_data = self.load_messages()
 			
@@ -155,7 +168,7 @@ class MainApplication(tk.Frame):
 			sys.exit()
 
 	def save_message(self, content, time, author, link):
-		with open("history.csv", "a", newline='') as csv_file:
+		with open("history.csv", "a", newline='', encoding="utf-8") as csv_file:
 			writer = csv.writer(csv_file)
 			line = [str(content), str(time.strftime("%H:%M")), str(author), str(link)]
 			writer.writerow(line)
@@ -163,7 +176,7 @@ class MainApplication(tk.Frame):
 	def load_messages(self):
 		history_data = []
 		if os.path.isfile("history.csv"):
-			with open("history.csv", newline='') as csv_file:
+			with open("history.csv", newline='', encoding="utf-8") as csv_file:
 				reader = csv.reader(csv_file)
 				for row in reversed(list(reader)):
 
@@ -181,7 +194,7 @@ class MainApplication(tk.Frame):
 
  
 	def save_state(self):
-		with open("info.csv", "w", newline='') as csv_file:
+		with open("info.csv", "w", newline='', encoding="utf-8") as csv_file:
 			writer = csv.writer(csv_file)
 			line = [self.tokenStorage.get(), self.startStorage.get(), self.endStorage.get(), self.messageStorage.get()]
 			writer.writerow(line)
@@ -189,7 +202,7 @@ class MainApplication(tk.Frame):
 
 	def load_state(self):
 		if os.path.isfile("info.csv"):
-			with open("info.csv", newline='') as csv_file:
+			with open("info.csv", newline='', encoding="utf-8") as csv_file:
 				reader = csv.reader(csv_file)
 				row_one = next(reader)
 				self.tokenStorage.set(row_one[0])
@@ -217,6 +230,17 @@ class MainApplication(tk.Frame):
 	def open_link(self, link):
 		webbrowser.open_new(link)
 
+	def interrupt(self):
+		try:
+			if client.paused:
+				self.pauseStorage.set("Pause")
+				client.paused = False
+			else:
+				self.pauseStorage.set("Play")
+				client.paused = True
+		except AttributeError:
+			self.popup("Error", "The program has not been started.")
+
 	def popup(self, title, message):
 		showinfo(title, message)
 
@@ -235,4 +259,5 @@ if __name__ == "__main__":
 	root.resizable(width=False, height=False)
 	win = MainApplication(root)
 	win.pack(side="top", fill="both", expand=True)
+	root.protocol("WM_DELETE_WINDOW", win.stop_thread)
 	root.mainloop()
