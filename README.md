@@ -53,7 +53,7 @@ You can also open an issue from the issues tab.\
 
 ## Donation
 
-If this project help you, feel free to give me a cup of coffee :)
+If this project helps you, feel free to give me a cup of coffee :)
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/donate?hosted_button_id=ERDW5WCR6MBBW)
 
