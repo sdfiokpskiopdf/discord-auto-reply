@@ -39,7 +39,9 @@ $ python main.py
 
 # Usage
 
-Simply enter your token into the app, choose a start and end time, enter a message, and click start.
+Simply enter your token into the app, choose a start and end time, enter a message, and click start. If you are unsure on how to get your discord token to run the app, follow this simple guide:
+
+https://www.youtube.com/watch?v=YEgFvgg7ZPI&ab_channel=GaugingGadgets
 
 
 
