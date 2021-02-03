@@ -43,5 +43,9 @@ Simply enter your token into the app, choose a start and end time, enter a messa
 
 https://www.youtube.com/watch?v=YEgFvgg7ZPI&ab_channel=GaugingGadgets
 
+# Issues
 
+Any Issues or just want to talk about the app? Feel free to DM me on discord - Pot Noodle#7727. 
+
+You can also open an issue from the issues tab.
 
