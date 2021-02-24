@@ -23,10 +23,11 @@ class MyClient(discord.Client):
 		self.ended = False
 		self.paused = False
 
-	def send_info(self, start, end, message):
+	def send_info(self, start, end, message, ignore):
 		self.startt = start
 		self.end = end
 		self.message = message
+		self.ignore = ignore 
 
 	def stop(self):
 		self.ended = True
@@ -41,6 +42,9 @@ class MyClient(discord.Client):
 			return
 
 		if message.author == self.user:
+			return
+
+		if self.ignore in message.content:
 			return
 
 		if in_between(current_time, self.startt, self.end):
@@ -69,9 +73,10 @@ class MainApplication(tk.Frame):
 		tk.Grid.rowconfigure(self, 4, weight=1)
 		tk.Grid.rowconfigure(self, 5, weight=1)
 		tk.Grid.rowconfigure(self, 6, weight=1)
+		tk.Grid.rowconfigure(self, 7, weight=1)
 		tk.Grid.columnconfigure(self, 0, weight=1)
 		tk.Grid.columnconfigure(self, 1, weight=1)
-
+		
 		self.times = self.get_times_list()
 
 		self.tokenStorage = tk.StringVar()
@@ -80,6 +85,8 @@ class MainApplication(tk.Frame):
 		self.messageStorage = tk.StringVar()
 		self.buttonStorage = tk.StringVar()
 		self.pauseStorage = tk.StringVar()
+		self.ignoreStorage = tk.IntVar()
+		self.ignoreTextStorage = tk.StringVar()
 
 		self.startStorage.set(self.times[0])
 		self.endStorage.set(self.times[-1])
@@ -92,15 +99,27 @@ class MainApplication(tk.Frame):
 		tk.Label(self, relief="sunken", text="End:", anchor="w").grid(row=1, column=1, sticky="we")
 		tk.OptionMenu(self, self.startStorage, *self.times).grid(row=2, column=0, sticky="we")
 		tk.OptionMenu(self, self.endStorage, *self.times).grid(row=2, column=1, sticky="we")
-		tk.Label(self, relief="sunken", text="Message:", anchor="w").grid(row=3, column=0, sticky="we")
-		tk.Entry(self, relief="sunken", textvariable=self.messageStorage).grid(row=3, column=1, sticky="we")
-		tk.Button(self, text="Start", command=lambda: self.control_thread()).grid(row=4, column=0, sticky="we")
-		tk.Button(self, text="End", command=lambda: self.stop_thread()).grid(row=4, column=1, sticky="we")
-		tk.Button(self, textvariable=self.buttonStorage, command=lambda: self.create_window()).grid(row=5, column=0, columnspan=2, sticky="we")
-		tk.Button(self, textvariable=self.pauseStorage, command=lambda: self.interrupt()).grid(row=6, column=0, columnspan=2, sticky="we")
+		tk.Checkbutton(self, text="Ignore:", relief="sunken", variable=self.ignoreStorage, command=lambda: self.activate_entry()).grid(row=3, column=0, sticky="we")
+		self.ignore = tk.Entry(self, relief="sunken", textvariable=self.ignoreTextStorage, state="disabled")
+		self.ignore.grid(row=3, column=1, sticky="we")
+		tk.Label(self, relief="sunken", text="Message:", anchor="w").grid(row=4, column=0, sticky="we")
+		tk.Entry(self, relief="sunken", textvariable=self.messageStorage).grid(row=4, column=1, sticky="we")
+		tk.Button(self, text="Start", command=lambda: self.control_thread()).grid(row=5, column=0, sticky="we")
+		tk.Button(self, text="End", command=lambda: self.stop_thread()).grid(row=5, column=1, sticky="we")
+		tk.Button(self, textvariable=self.buttonStorage, command=lambda: self.create_window()).grid(row=6, column=0, columnspan=2, sticky="we")
+		tk.Button(self, textvariable=self.pauseStorage, command=lambda: self.interrupt()).grid(row=7, column=0, columnspan=2, sticky="we")
 
 		self.load_state()
 		self.history_data = self.load_messages()
+
+	def activate_entry(self):
+		if self.ignoreStorage.get() == 1:
+			self.ignore.config(state="normal")
+		else:
+			self.ignore.config(state="disabled")
+
+
+
 
 	def create_window(self):
 		#shitty programming starts here
@@ -120,7 +139,7 @@ class MainApplication(tk.Frame):
 			self.history_data = self.load_messages()
 			
 			if len(self.history_data) == 0:
-				tk.Label(self.window, text="No history to show yet.").place(relx=.4, rely=.4)
+				tk.Label(self.window, text="No history to show yet.").place(relx=.2, rely=.4)
 				return None
 
 			i = 0
@@ -157,13 +176,27 @@ class MainApplication(tk.Frame):
 		save.start()
 
 	def start_thread(self):
-		client.send_info(self.startStorage.get(), self.endStorage.get(), self.messageStorage.get())
-		client.run(self.tokenStorage.get(), bot=False)
+		if self.messageStorage.get() == "":
+			self.popup("Error", "Please enter a message.")
+			self.stop_thread(verify=False)
+		try:
+			client.send_info(self.startStorage.get(), self.endStorage.get(), self.messageStorage.get(), self.ignoreTextStorage.get())
+			client.run(self.tokenStorage.get(), bot=False)
+		except:
+			if self.tokenStorage.get() == "":
+				self.popup("Error", "Please enter a token.")
+			else:
+				self.popup("Error", "Please enter valid credentials.")
+			self.stop_thread(verify=False)
 
 
-	def stop_thread(self):
-		result = self.question_popup("Exit", "Are you sure you want to end the program?")
-		if result == 'yes':
+	def stop_thread(self, verify=True):
+		if verify:
+			result = self.question_popup("Exit", "Are you sure you want to end the program?")
+			if result == 'yes':
+				print("Logged out as", client.user)
+				sys.exit()
+		else:
 			print("Logged out as", client.user)
 			sys.exit()
 
