@@ -11,10 +11,14 @@ from tkinter.messagebox import showinfo
 from tkinter.messagebox import askquestion
 
 def in_between(now, start, end):
-    if start <= end:
-        return start <= now < end
-    else: # over midnight e.g., 23:30-04:15
-        return start <= now or now < end
+	print(now)
+	print(start)
+	print(end)
+	
+	if start <= end:
+		return start <= now < end
+	else: # over midnight e.g., 23:30-04:15
+		return start <= now or now < end
 
 
 class MyClient(discord.Client):
@@ -44,10 +48,17 @@ class MyClient(discord.Client):
 		if message.author == self.user:
 			return
 
-		if self.ignore in message.content:
+		print(self.ignore)
+		print(message.content)
+		if self.ignore is not None and self.ignore in message.content:
+			print("ignored")
+			print(self.ignore)
 			return
 
+		print("passed checks")
+
 		if in_between(current_time, self.startt, self.end):
+			print("in between")
 			if isinstance(message.channel, discord.channel.DMChannel):
 				win.save_message(message.content, message.created_at, message.author, message.jump_url)
 				await message.channel.send(self.message)
@@ -180,9 +191,15 @@ class MainApplication(tk.Frame):
 			self.popup("Error", "Please enter a message.")
 			self.stop_thread(verify=False)
 		try:
-			client.send_info(self.startStorage.get(), self.endStorage.get(), self.messageStorage.get(), self.ignoreTextStorage.get())
+			if self.ignoreTextStorage.get() == "":
+				its = None
+			
+			its = self.ignoreTextStorage.get()
+
+			client.send_info(self.startStorage.get(), self.endStorage.get(), self.messageStorage.get(), its)
 			client.run(self.tokenStorage.get(), bot=False)
-		except:
+		except Exception as e:
+			print(e)
 			if self.tokenStorage.get() == "":
 				self.popup("Error", "Please enter a token.")
 			else:
