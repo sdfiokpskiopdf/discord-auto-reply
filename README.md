@@ -1,4 +1,4 @@
-# Auto Reply For Discord [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity) [![HitCount](http://hits.dwyl.com/faizanshah-python/discord-auto-reply.svg)](http://hits.dwyl.com/faizanshah-python/discord-auto-reply) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/donate?hosted_button_id=ERDW5WCR6MBBW)
+# Auto Reply For Discord [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/donate?hosted_button_id=ERDW5WCR6MBBW)
 
 ## Overview
 
@@ -13,7 +13,16 @@ An executable has been created and now can be downloaded from the releases secti
 
 ## Installation
 
-Download the executable file from the releases section or follow instructions to run directly from the python file:
+Download the executable file from the releases section:
+
+- Because this code uses your token to interact with discord, your operating system may identify this as a virus.
+- In your browser, change your download safety settings to allow you to download unsafe software
+- Turn off your antivirus or make an exclusion for this software.
+- If you need any help getting this started. Please refer to my discord.
+
+or
+
+Follow instructions to run directly from the source:
 
 First clone this repository to any folder:
 
@@ -49,7 +58,7 @@ https://www.youtube.com/watch?v=YEgFvgg7ZPI&ab_channel=GaugingGadgets
 
 Any Issues or just want to talk about the app? Feel free to DM me on discord - Pot Noodle#7727. 
 
-You can also open an issue from the issues tab.\
+You can also open an issue from the issues tab.
 
 ## Donation
 
