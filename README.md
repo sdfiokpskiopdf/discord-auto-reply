@@ -56,7 +56,7 @@ https://www.youtube.com/watch?v=YEgFvgg7ZPI&ab_channel=GaugingGadgets
 
 ## Issues
 
-Any Issues or just want to talk about the app? Feel free to DM me on discord - Pot Noodle#7727. 
+Any Issues or just want to talk about the app? Feel free to DM me on discord - Pot Noodle#1213. 
 
 You can also open an issue from the issues tab.
 
