@@ -1,6 +1,6 @@
 # Auto Reply For Discord [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/donate?hosted_button_id=ERDW5WCR6MBBW)
 
-# purchase updated version: Discord - Swanky#6710
+# updated version: Discord - Swanky#6710
 ## Overview
 
 This app will allow you to automatically reply to DMs on discord with a custom AFK message. It will also reply to pings in discord servers with the same message. The app allows you to:
